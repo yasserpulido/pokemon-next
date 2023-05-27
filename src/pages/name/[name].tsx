@@ -16,7 +16,7 @@ type Props = {
   pokemon: Pokemon;
 };
 
-export default function PokemonPage({ pokemon }: Props) {
+export default function PokemonByNamePage({ pokemon }: Props) {
   const [isFavorite, setIsFavorite] = useState(false);
   const name = useCapitalizeName(pokemon.name);
 
@@ -118,24 +118,24 @@ const SecondariesCards = styled.div({
 });
 
 export const getStaticPaths = async () => {
-  const pokemons151 = [...Array(151)].map((_, i) => (i + 1).toString());
+  const data = await pokemonApi.getPokemons();
+
+  const pokemonName: string[] = data.results.map(
+    (pokemon: { name: string; url: string }) => pokemon.name
+  );
 
   return {
-    paths: pokemons151.map((id) => ({
-      params: {
-        id,
-      },
-    })),
+    paths: pokemonName.map((name) => ({ params: { name } })),
     fallback: false,
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { id } = params as { id: string };
+  const { name } = params as { name: string };
 
   return {
     props: {
-      pokemon: await getPokemonInfo(id),
+      pokemon: await getPokemonInfo(name),
     },
   };
 };
